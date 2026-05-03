@@ -114,3 +114,122 @@ h2 { font-size: 18px; margin: 0; }
   border-bottom: 1px solid #222;
   padding: 3px 0;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: #0b0c10;
+  color: white;
+  font-family: system-ui, sans-serif;
+}
+
+/* ========== SYSTEM ========== */
+.system-banner {
+  height: 120px;
+  width: 100%;
+}
+
+.system-header {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  align-items: center;
+}
+
+.system-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.system-desc {
+  font-size: 13px;
+  opacity: 0.85;
+  line-height: 1.4;
+}
+
+/* ========== GRID ========== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+  padding: 15px;
+}
+
+/* ========== CARD ========== */
+.card {
+  background: #15161c;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+/* TOP */
+.top {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+/* TEXT */
+h1 { font-size: 22px; margin: 0; }
+h2 { font-size: 18px; margin: 0; }
+
+.pronouns {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+/* TAG SYSTEM PRO */
+.tags {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.tag {
+  font-size: 11px;
+  padding: 3px 7px;
+  border-radius: 8px;
+  background: #2a2a2a;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* DESCRIPTION */
+.desc {
+  margin-top: 10px;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.desc img {
+  max-width: 100%;
+  border-radius: 10px;
+}
+
+/* CUSTOM FIELDS */
+.custom {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.field {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #222;
+  padding: 3px 0;
+}
