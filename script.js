@@ -11,17 +11,18 @@ data.members.forEach(member => {
   // Nome
   const name = member.displayName || member.name;
 
-  // Avatar (ora usa direttamente URL)
+  // Avatar
   const img = document.createElement("img");
   img.src = member.avatarUrl || "https://via.placeholder.com/80";
 
-  // Descrizione (grezza per ora)
-  const desc = member.desc || "";
+  // Markdown → HTML
+  const desc = marked.parse(member.desc || "");
 
   const info = document.createElement("div");
   info.innerHTML = `
-    <h2>${name}</h2>
-    <p>${desc}</p>
+    <h2 style="color:${member.color || "#fff"}">${name}</h2>
+    <p><strong>Pronouns:</strong> ${member.pronouns || "N/A"}</p>
+    <div>${desc}</div>
   `;
 
   div.appendChild(img);
