@@ -1,14 +1,22 @@
-function safe(val, fallback = "") {
-  return val ?? fallback;
+function safe(v, fallback = "") {
+  return v ?? fallback;
 }
 
-function md(text) {
+function renderMD(text) {
   try {
     return text ? marked.parse(text) : "";
   } catch {
     return text || "";
   }
 }
+
+/* ================= TAG MAP (MODIFICALA TU) ================= */
+const TAG_MAP = {
+  "tag_group_630cfcd28b30cf2e99e07eca": "Protector",
+  "tag_group_635122c7726f890700afe0e4": "Host",
+  "tag_group_61717575578376a8e43d7263": "System",
+  "tag_group_653e8a4ec732374beadf715d": "Gatekeeper"
+};
 
 fetch("data/system.json")
 .then(res => {
@@ -22,25 +30,26 @@ fetch("data/system.json")
 
   const app = document.getElementById("alters");
 
-  // ================= SYSTEM =================
-  const systemView = document.createElement("div");
-  systemView.className = "system";
+  /* ================= SYSTEM HEADER ================= */
+  const systemEl = document.createElement("div");
+  systemEl.className = "system";
 
-  systemView.innerHTML = `
+  systemEl.innerHTML = `
     <div class="system-banner" style="background:${system.color || '#222'}"></div>
 
     <div class="system-header">
       <img src="${safe(system.avatarUrl)}" class="system-avatar">
-      <div class="system-text">
+
+      <div>
         <h1>${safe(system.name, "Unnamed System")}</h1>
-        <div class="system-desc">${md(system.desc)}</div>
+        <div class="system-desc">${renderMD(system.desc)}</div>
       </div>
     </div>
   `;
 
-  app.appendChild(systemView);
+  app.appendChild(systemEl);
 
-  // ================= GRID =================
+  /* ================= GRID ================= */
   const grid = document.createElement("div");
   grid.className = "grid";
 
@@ -51,13 +60,15 @@ fetch("data/system.json")
 
     const name = safe(m.displayName || m.name, "Unnamed");
     const avatar = safe(m.avatarUrl, "https://via.placeholder.com/80");
+    const pronouns = safe(m.pronouns, "N/A");
 
-    // tags (grezzi ma visibili)
+    /* ===== TAGS (MAPPED) ===== */
     const tags = (m.tagIds || [])
+      .map(t => TAG_MAP[t] || t) // fallback ID
       .map(t => `<span class="tag">${t}</span>`)
       .join("");
 
-    // custom fields (OurCana)
+    /* ===== CUSTOM FIELDS ===== */
     const custom = m.customFields
       ? Object.entries(m.customFields)
           .map(([k,v]) => `
@@ -66,38 +77,27 @@ fetch("data/system.json")
               <span>${v}</span>
             </div>
           `).join("")
-      : "<i>No custom fields</i>";
-
-    // immagini nel markdown già supportate da marked
+      : "<i>No extra fields</i>";
 
     card.innerHTML = `
       <div class="top">
         <img src="${avatar}" class="avatar">
 
-        <div class="meta">
+        <div>
           <h2 style="color:${m.color || '#fff'}">${name}</h2>
-          <div class="pronouns">${safe(m.pronouns, "N/A")}</div>
+          <div class="pronouns">${pronouns}</div>
           <div class="tags">${tags}</div>
         </div>
       </div>
 
-      <button class="toggle">Toggle details</button>
+      <div class="desc">
+        ${renderMD(m.desc)}
+      </div>
 
-      <div class="details hidden">
-        <div class="desc">${md(m.desc)}</div>
-
-        <div class="custom">
-          ${custom}
-        </div>
+      <div class="custom">
+        ${custom}
       </div>
     `;
-
-    const btn = card.querySelector(".toggle");
-    const details = card.querySelector(".details");
-
-    btn.onclick = () => {
-      details.classList.toggle("hidden");
-    };
 
     grid.appendChild(card);
   });
