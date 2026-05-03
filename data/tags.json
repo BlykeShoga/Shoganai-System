@@ -1,0 +1,17 @@
+{
+  "tag_group_630cfcd28b30cf2e99e07eca": {
+    "name": "Protector",
+    "color": "#4fd2a7",
+    "emoji": "🛡️"
+  },
+  "tag_group_635122c7726f890700afe0e4": {
+    "name": "Host",
+    "color": "#ffcc66",
+    "emoji": "👤"
+  },
+  "tag_group_61717575578376a8e43d7263": {
+    "name": "System",
+    "color": "#a78bfa",
+    "emoji": "🧠"
+  }
+}
