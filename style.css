@@ -1,3 +1,7 @@
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
   background: #0b0c10;
@@ -5,8 +9,10 @@ body {
   font-family: system-ui, sans-serif;
 }
 
+/* ================= SYSTEM ================= */
 .system-banner {
   height: 120px;
+  width: 100%;
 }
 
 .system-header {
@@ -20,26 +26,31 @@ body {
   width: 80px;
   height: 80px;
   border-radius: 12px;
+  object-fit: cover;
 }
 
 .system-desc {
   font-size: 13px;
   opacity: 0.85;
+  line-height: 1.4;
 }
 
+/* ================= GRID ================= */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 12px;
   padding: 15px;
 }
 
+/* ================= CARD ================= */
 .card {
   background: #15161c;
   border-radius: 14px;
   padding: 12px;
 }
 
+/* TOP */
 .top {
   display: flex;
   gap: 10px;
@@ -49,53 +60,57 @@ body {
 .avatar {
   width: 60px;
   height: 60px;
-  border-radius: 10px;
+  border-radius: 12px;
+  object-fit: cover;
 }
 
-.meta h2 {
-  margin: 0;
-}
+/* TEXT */
+h1 { font-size: 22px; margin: 0; }
+h2 { font-size: 18px; margin: 0; }
 
 .pronouns {
   font-size: 12px;
   opacity: 0.7;
 }
 
+/* TAGS */
 .tags {
   margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 
 .tag {
   font-size: 10px;
-  background: #333;
+  background: #2a2a2a;
   padding: 2px 6px;
-  margin-right: 4px;
   border-radius: 6px;
 }
 
-.toggle {
-  margin-top: 8px;
-  background: #222;
-  border: none;
-  color: white;
-  padding: 6px;
-  border-radius: 8px;
-}
-
-.details {
+/* DESCRIPTION */
+.desc {
   margin-top: 10px;
-  border-top: 1px solid #333;
-  padding-top: 10px;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
-.hidden {
-  display: none;
+.desc img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* CUSTOM FIELDS */
+.custom {
+  margin-top: 10px;
+  font-size: 12px;
+  opacity: 0.9;
 }
 
 .field {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
   border-bottom: 1px solid #222;
   padding: 3px 0;
 }
