@@ -1,40 +1,93 @@
 fetch("data/system.json")
-.then(res => res.json())
-.then(data => {
+  .then(res => {
+    if (!res.ok) throw new Error("JSON not found or path wrong");
+    return res.json();
+  })
+  .then(data => {
 
-  const system = data.system;
-  const members = data.members;
+    console.log("Loaded data:", data);
 
-  const container = document.getElementById("alters");
+    const container = document.getElementById("alters");
 
-  // ===== SYSTEM HEADER =====
-  const header = document.createElement("div");
-  header.className = "system-header";
+    const system = data?.system || {};
+    const members = Array.isArray(data?.members) ? data.members : [];
 
-  header.innerHTML = `
-    <div class="system-banner" style="background:${system.color || "#444"}"></div>
-    <div class="system-info">
-      <img src="${system.avatarUrl}" class="system-avatar">
-      <div>
-        <h1>${system.name}</h1>
-        <div class="system-desc">${marked.parse(system.desc || "")}</div>
+    // ===== SYSTEM HEADER SAFE =====
+    const header = document.createElement("div");
+    header.className = "system-header";
+
+    header.innerHTML = `
+      <div class="system-banner" style="background:${system.color || "#444"}"></div>
+      <div class="system-info">
+        <img src="${system.avatarUrl || ""}" class="system-avatar">
+        <div>
+          <h1>${system.name || "Unnamed system"}</h1>
+          <div class="system-desc">
+            ${system.desc ? marked.parse(system.desc) : ""}
+          </div>
+        </div>
       </div>
-    </div>
-  `;
+    `;
 
-  container.appendChild(header);
+    container.appendChild(header);
 
-  // ===== GRID =====
-  const grid = document.createElement("div");
-  grid.className = "alter-grid";
+    // ===== GRID =====
+    const grid = document.createElement("div");
+    grid.className = "alter-grid";
 
-  members.forEach(member => {
+    members.forEach(member => {
 
-    const card = document.createElement("div");
-    card.className = "alter-card";
+      try {
+        const card = document.createElement("div");
+        card.className = "alter-card";
 
-    const name = member.displayName || member.name;
+        const name = member.displayName || member.name || "Unnamed";
 
+        const avatar = member.avatarUrl || "https://via.placeholder.com/80";
+
+        const pronouns = member.pronouns || "N/A";
+
+        const desc = member.desc ? marked.parse(member.desc) : "";
+
+        // custom fields safe
+        const custom = member.customFields
+          ? Object.entries(member.customFields).map(([k,v]) =>
+              `<div><b>${k}:</b> ${v}</div>`
+            ).join("")
+          : "";
+
+        card.innerHTML = `
+          <div class="alter-main">
+            <img src="${avatar}" class="alter-avatar">
+
+            <div class="alter-core">
+              <h2>${name}</h2>
+              <div class="pronouns">${pronouns}</div>
+            </div>
+          </div>
+
+          <div class="alter-details">
+            <div class="desc">${desc}</div>
+            <div class="custom">${custom}</div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+
+      } catch (err) {
+        console.error("Error rendering member:", member, err);
+      }
+
+    });
+
+    container.appendChild(grid);
+
+  })
+  .catch(err => {
+    console.error("SYSTEM LOAD ERROR:", err);
+    document.getElementById("alters").innerHTML =
+      "<p style='color:red'>Error loading system.json</p>";
+  });
     // CUSTOM FIELDS (OurCana)
     let customFieldsHTML = "";
     if (member.customFields) {
