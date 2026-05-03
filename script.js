@@ -1,28 +1,57 @@
 fetch("data/system.json")
 .then(res => res.json())
 .then(data => {
+
+  const system = data.system;
+  const members = data.members;
+
   const container = document.getElementById("alters");
 
-  data.members.forEach(member => {
-    const div = document.createElement("div");
-    div.className = "alter";
+  // HEADER SISTEMA
+  const header = document.createElement("div");
+  header.className = "system-header";
+
+  header.innerHTML = `
+    <div class="system-banner" style="background:${system.color || "#444"}"></div>
+    <div class="system-info">
+      <img src="${system.avatarUrl}" class="system-avatar">
+      <div>
+        <h1>${system.name}</h1>
+        <p>${marked.parse(system.desc || "")}</p>
+      </div>
+    </div>
+  `;
+
+  container.appendChild(header);
+
+  // GRID ALTERS
+  const grid = document.createElement("div");
+  grid.className = "alter-grid";
+
+  members.forEach(member => {
+
+    const card = document.createElement("div");
+    card.className = "alter-card";
 
     const name = member.displayName || member.name;
 
-    const img = document.createElement("img");
-    img.src = member.avatarUrl || "https://via.placeholder.com/80";
+    card.innerHTML = `
+      <div class="alter-top">
+        <img src="${member.avatarUrl || 'https://via.placeholder.com/80'}" class="alter-avatar">
+        <div>
+          <h2 style="color:${member.color || '#fff'}">${name}</h2>
+          <div class="pronouns">${member.pronouns || "N/A"}</div>
+        </div>
+      </div>
 
-    const desc = marked.parse(member.desc || "");
-
-    const info = document.createElement("div");
-    info.innerHTML = `
-      <h2 style="color:${member.color || "#fff"}">${name}</h2>
-      <p><strong>Pronouns:</strong> ${member.pronouns || "N/A"}</p>
-      <div>${desc}</div>
+      <div class="alter-desc">
+        ${marked.parse(member.desc || "")}
+      </div>
     `;
 
-    div.appendChild(img);
-    div.appendChild(info);
-    container.appendChild(div);
+    grid.appendChild(card);
   });
+
+  container.appendChild(grid);
+
 });
