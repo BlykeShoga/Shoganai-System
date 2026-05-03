@@ -1,226 +1,112 @@
+function safe(val, fallback = "") {
+  return val ?? fallback;
+}
+
+function md(text) {
+  try {
+    return text ? marked.parse(text) : "";
+  } catch {
+    return text || "";
+  }
+}
+
 fetch("data/system.json")
-  .then(res => {
-    if (!res.ok) throw new Error("JSON not found or path wrong");
-    return res.json();
-  })
-  .then(data => {
+.then(res => {
+  if (!res.ok) throw new Error("JSON not found");
+  return res.json();
+})
+.then(data => {
 
-    console.log("Loaded data:", data);
+  const system = data?.system || {};
+  const members = Array.isArray(data?.members) ? data.members : [];
 
-    const container = document.getElementById("alters");
+  const app = document.getElementById("alters");
 
-    const system = data?.system || {};
-    const members = Array.isArray(data?.members) ? data.members : [];
+  // ================= SYSTEM =================
+  const systemView = document.createElement("div");
+  systemView.className = "system";
 
-    // ===== SYSTEM HEADER SAFE =====
-    const header = document.createElement("div");
-    header.className = "system-header";
+  systemView.innerHTML = `
+    <div class="system-banner" style="background:${system.color || '#222'}"></div>
 
-    header.innerHTML = `
-      <div class="system-banner" style="background:${system.color || "#444"}"></div>
-      <div class="system-info">
-        <img src="${system.avatarUrl || ""}" class="system-avatar">
-        <div>
-          <h1>${system.name || "Unnamed system"}</h1>
-          <div class="system-desc">
-            ${system.desc ? marked.parse(system.desc) : ""}
-          </div>
-        </div>
+    <div class="system-header">
+      <img src="${safe(system.avatarUrl)}" class="system-avatar">
+      <div class="system-text">
+        <h1>${safe(system.name, "Unnamed System")}</h1>
+        <div class="system-desc">${md(system.desc)}</div>
       </div>
-    `;
+    </div>
+  `;
 
-    container.appendChild(header);
+  app.appendChild(systemView);
 
-    // ===== GRID =====
-    const grid = document.createElement("div");
-    grid.className = "alter-grid";
+  // ================= GRID =================
+  const grid = document.createElement("div");
+  grid.className = "grid";
 
-    members.forEach(member => {
+  members.forEach(m => {
 
-      try {
-        const card = document.createElement("div");
-        card.className = "alter-card";
+    const card = document.createElement("div");
+    card.className = "card";
 
-        const name = member.displayName || member.name || "Unnamed";
+    const name = safe(m.displayName || m.name, "Unnamed");
+    const avatar = safe(m.avatarUrl, "https://via.placeholder.com/80");
 
-        const avatar = member.avatarUrl || "https://via.placeholder.com/80";
+    // tags (grezzi ma visibili)
+    const tags = (m.tagIds || [])
+      .map(t => `<span class="tag">${t}</span>`)
+      .join("");
 
-        const pronouns = member.pronouns || "N/A";
-
-        const desc = member.desc ? marked.parse(member.desc) : "";
-
-        // custom fields safe
-        const custom = member.customFields
-          ? Object.entries(member.customFields).map(([k,v]) =>
-              `<div><b>${k}:</b> ${v}</div>`
-            ).join("")
-          : "";
-
-        card.innerHTML = `
-          <div class="alter-main">
-            <img src="${avatar}" class="alter-avatar">
-
-            <div class="alter-core">
-              <h2>${name}</h2>
-              <div class="pronouns">${pronouns}</div>
+    // custom fields (OurCana)
+    const custom = m.customFields
+      ? Object.entries(m.customFields)
+          .map(([k,v]) => `
+            <div class="field">
+              <span>${k}</span>
+              <span>${v}</span>
             </div>
-          </div>
+          `).join("")
+      : "<i>No custom fields</i>";
 
-          <div class="alter-details">
-            <div class="desc">${desc}</div>
-            <div class="custom">${custom}</div>
-          </div>
-        `;
-
-        grid.appendChild(card);
-
-      } catch (err) {
-        console.error("Error rendering member:", member, err);
-      }
-
-    });
-
-    container.appendChild(grid);
-
-  })
-  .catch(err => {
-    console.error("SYSTEM LOAD ERROR:", err);
-    document.getElementById("alters").innerHTML =
-      "<p style='color:red'>Error loading system.json</p>";
-  });
-    // CUSTOM FIELDS (OurCana)
-    let customFieldsHTML = "";
-    if (member.customFields) {
-      customFieldsHTML = Object.entries(member.customFields)
-        .map(([key, value]) => `
-          <div class="field">
-            <span class="field-key">${key}</span>
-            <span class="field-value">${value}</span>
-          </div>
-        `).join("");
-    }
-
-    // TAGS (se presenti come IDs)
-    const tags = (member.tagIds || [])
-      .map(t => `<span class="tag">${t}</span>`)
-      .join(" ");
+    // immagini nel markdown già supportate da marked
 
     card.innerHTML = `
-      <div class="alter-main">
+      <div class="top">
+        <img src="${avatar}" class="avatar">
 
-        <img src="${member.avatarUrl || 'https://via.placeholder.com/80'}" class="alter-avatar">
-
-        <div class="alter-core">
-          <h2 style="color:${member.color || '#fff'}">${name}</h2>
-          <div class="pronouns">${member.pronouns || "N/A"}</div>
+        <div class="meta">
+          <h2 style="color:${m.color || '#fff'}">${name}</h2>
+          <div class="pronouns">${safe(m.pronouns, "N/A")}</div>
           <div class="tags">${tags}</div>
         </div>
-
-        <button class="toggle">▼</button>
       </div>
 
-      <div class="alter-details hidden">
+      <button class="toggle">Toggle details</button>
 
-        <div class="desc">
-          ${marked.parse(member.desc || "")}
+      <div class="details hidden">
+        <div class="desc">${md(m.desc)}</div>
+
+        <div class="custom">
+          ${custom}
         </div>
-
-        <div class="custom-fields">
-          ${customFieldsHTML || "<i>No extra fields</i>"}
-        </div>
-
       </div>
     `;
 
-    // toggle expand
     const btn = card.querySelector(".toggle");
-    const details = card.querySelector(".alter-details");
+    const details = card.querySelector(".details");
 
-    btn.addEventListener("click", () => {
+    btn.onclick = () => {
       details.classList.toggle("hidden");
-      btn.textContent = details.classList.contains("hidden") ? "▼" : "▲";
-    });
+    };
 
     grid.appendChild(card);
   });
 
-  container.appendChild(grid);
-});
-    // CUSTOM FIELDS (OurCana)
-    let customFieldsHTML = "";
-    if (member.customFields) {
-      customFieldsHTML = Object.entries(member.customFields)
-        .map(([key, value]) => `
-          <div class="field">
-            <span class="field-key">${key}</span>
-            <span class="field-value">${value}</span>
-          </div>
-        `).join("");
-    }
+  app.appendChild(grid);
 
-    // TAGS (se presenti come IDs)
-    const tags = (member.tagIds || [])
-      .map(t => `<span class="tag">${t}</span>`)
-      .join(" ");
-
-    card.innerHTML = `
-      <div class="alter-main">
-
-        <img src="${member.avatarUrl || 'https://via.placeholder.com/80'}" class="alter-avatar">
-
-        <div class="alter-core">
-          <h2 style="color:${member.color || '#fff'}">${name}</h2>
-          <div class="pronouns">${member.pronouns || "N/A"}</div>
-          <div class="tags">${tags}</div>
-        </div>
-
-        <button class="toggle">▼</button>
-      </div>
-
-      <div class="alter-details hidden">
-
-        <div class="desc">
-          ${marked.parse(member.desc || "")}
-        </div>
-
-        <div class="custom-fields">
-          ${customFieldsHTML || "<i>No extra fields</i>"}
-        </div>
-
-      </div>
-    `;
-
-    // toggle expand
-    const btn = card.querySelector(".toggle");
-    const details = card.querySelector(".alter-details");
-
-    btn.addEventListener("click", () => {
-      details.classList.toggle("hidden");
-      btn.textContent = details.classList.contains("hidden") ? "▼" : "▲";
-    });
-
-    grid.appendChild(card);
-  });
-
-  container.appendChild(grid);
-});
-    card.innerHTML = `
-      <div class="alter-top">
-        <img src="${member.avatarUrl || 'https://via.placeholder.com/80'}" class="alter-avatar">
-        <div>
-          <h2 style="color:${member.color || '#fff'}">${name}</h2>
-          <div class="pronouns">${member.pronouns || "N/A"}</div>
-        </div>
-      </div>
-
-      <div class="alter-desc">
-        ${marked.parse(member.desc || "")}
-      </div>
-    `;
-
-    grid.appendChild(card);
-  });
-
-  container.appendChild(grid);
-
+})
+.catch(err => {
+  console.error(err);
+  document.getElementById("alters").innerHTML =
+    "<p style='color:red'>Failed to load system.json</p>";
 });
